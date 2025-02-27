@@ -16,4 +16,9 @@ The following techniques have been used:
  - All the above said modelling techniques are tried and evaluated. The final metric used to evaluate is mean squared error.
 
 ## To excute the script
-python < scriptname.py ># mle-training
+ ## Step 1: Create the Conda Environment
+ - conda env create -f myenv.yml
+ ## Step 2: Activate the Conda Environment
+ - conda activate myenv
+ ## Step 3: Run the python script
+ - python nonstandard.py
