@@ -39,7 +39,7 @@ jobs:
         run: conda install -y flake8
 
       - name: Run flake8 test
-        run: flake8 src/mle_training/nonstandardcode.py
+        run: flake8 src/mle-training/nonstandardcode.py
 
       - name: Build the package
         run: python setup.py sdist bdist_wheel
