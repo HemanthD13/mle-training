@@ -84,4 +84,4 @@ jobs:
         run: pip install dist/*.whl
 
       - name: Run nonstandardcode.py
-        run: python -m mle_training.nonstandardcode
+        run: python -m mle-training.nonstandardcode
