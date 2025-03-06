@@ -1,0 +1,45 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - setup/issue#7/ci-conda-automation
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Miniforge (Mambaforge)
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          installer-url: https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
+          miniforge-variant: Mambaforge
+          use-mamba: true
+          auto-update-conda: true
+          environment-file: env.yml
+          activate-environment: mle-dev
+
+
+      - name: Install dependencies
+        shell: bash -l {0}
+        run: |
+          conda activate mle-dev
+          conda install -y flake8
+
+      - name: Run flake8 test
+        shell: bash -l {0}
+        run: |
+          conda activate mle-dev
+          flake8 nonstandardcode.py
+
+      - name: Run nonstandardcode.py
+        shell: bash -l {0}
+        run: |
+          conda activate mle-dev
+          python nonstandardcode.py
