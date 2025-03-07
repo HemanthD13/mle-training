@@ -36,10 +36,10 @@ jobs:
         shell: bash -l {0}
         run: |
           conda activate mle-dev
-          flake8 nonstandardcode.py
+          flake8 src/mle-training/nonstandardcode.py
 
       - name: Run nonstandardcode.py
         shell: bash -l {0}
         run: |
           conda activate mle-dev
-          python nonstandardcode.py
+          python src/mle-training/nonstandardcode.pynonstandardcode.py
