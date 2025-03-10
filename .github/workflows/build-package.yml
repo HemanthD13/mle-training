@@ -42,4 +42,8 @@ jobs:
         shell: bash -l {0}
         run: |
           conda activate mle-dev
-          python src/mle-training/nonstandardcode.py
+                - name: Run nonstandardcode.py
+        shell: bash -l {0}
+        run: |
+          conda activate mle-dev
+          python -m mle-training.nonstandardcode
