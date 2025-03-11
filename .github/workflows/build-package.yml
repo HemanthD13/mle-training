@@ -29,16 +29,30 @@ jobs:
         shell: bash -l {0}
         run: |
           conda activate mle-dev
-          conda install -y flake8
+          conda install -y flake8 build
 
       - name: Run flake8 test
         shell: bash -l {0}
         run: |
           conda activate mle-dev
-          flake8 src/mle-training/nonstandardcode.py
+          flake8 src/mle_training/nonstandardcode.py
 
-      - name: Run nonstandardcode.py
+      - name: Build package
         shell: bash -l {0}
         run: |
           conda activate mle-dev
-          python -m mle-training.nonstandardcode
+          python -m build  # Ensure build tools are installed
+
+      - name: Show directory tree after build
+        shell: bash -l {0}
+        run: |
+          tree dist/
+
+      - name: Install built package
+        shell: bash -l {0}
+        run: |
+          conda activate mle-dev
+          pip install dist/*.whl
+
+      - name: Run nonstandardcode.py
+        shell: bash -c "source activate mle-dev && python -m mle_training.nonstandardcode"
