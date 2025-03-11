@@ -25,7 +25,6 @@ jobs:
           environment-file: env.yml
           activate-environment: mle-dev
 
-
       - name: Install dependencies
         shell: bash -l {0}
         run: |
@@ -39,10 +38,6 @@ jobs:
           flake8 src/mle-training/nonstandardcode.py
 
       - name: Run nonstandardcode.py
-        shell: bash -l {0}
-        run: |
-          conda activate mle-dev
-                - name: Run nonstandardcode.py
         shell: bash -l {0}
         run: |
           conda activate mle-dev
