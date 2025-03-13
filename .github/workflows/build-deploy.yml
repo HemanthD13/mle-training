@@ -70,8 +70,9 @@ jobs:
       - name: Install package
         run: pip install dist/*.whl
 
-      - name: Ensure numpy is installed
-        run: pip install numpy
+      - name: Ensure required packages are installed
+        run: |
+          pip install numpy pandas scipy six scikit-learn matplotlib
 
       - name: Run nonstandardcode.py
         run: python -m mle_training.nonstandardcode
