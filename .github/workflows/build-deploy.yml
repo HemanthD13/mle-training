@@ -70,5 +70,8 @@ jobs:
       - name: Install package
         run: pip install dist/*.whl
 
+      - name: Ensure numpy is installed
+        run: pip install numpy
+
       - name: Run nonstandardcode.py
         run: python -m mle_training.nonstandardcode
