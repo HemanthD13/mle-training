@@ -44,6 +44,9 @@ jobs:
       - name: Build the package
         run: python setup.py sdist bdist_wheel
 
+      - name: Move test files to dist directory
+        run: cp tests/test_package.py dist/
+
       - name: Show directory structure after building
         run: tree -L 3
 
@@ -61,9 +64,6 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
       - name: Setup Miniforge (Mambaforge)
         uses: conda-incubator/setup-miniconda@v2
         with:
@@ -77,7 +77,7 @@ jobs:
       - name: Install pytest
         run: conda install -y pytest
 
-      - name: Download built package
+      - name: Download built package and test file
         uses: actions/download-artifact@v4
         with:
           name: mle-training-package
@@ -87,5 +87,4 @@ jobs:
         run: pip install dist/*.whl
 
       - name: Run tests with pytest
-        run: |
-          pytest -v tests/test_package.py
+        run: pytest -v dist/test_package.py
