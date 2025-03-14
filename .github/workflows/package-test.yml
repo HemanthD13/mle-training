@@ -74,6 +74,9 @@ jobs:
           environment-file: env.yml
           activate-environment: mle-dev
 
+      - name: Install pytest (again)
+        run: conda install -y pytest
+
       - name: Download built package
         uses: actions/download-artifact@v4
         with:
