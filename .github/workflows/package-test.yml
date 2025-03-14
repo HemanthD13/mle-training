@@ -1,4 +1,4 @@
-name: Testing python code
+name: Testing Python Code
 
 on:
   push:
@@ -18,6 +18,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Verify env.yml existence
+        run: |
+          echo "Checking for env.yml file..."
+          ls -R
 
       - name: Install tree CLI
         run: sudo apt-get update && sudo apt-get install -y tree
@@ -64,6 +69,14 @@ jobs:
         shell: bash -l {0}
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Verify env.yml existence
+        run: |
+          echo "Checking for env.yml file..."
+          ls -R
+
       - name: Setup Miniforge (Mambaforge)
         uses: conda-incubator/setup-miniconda@v2
         with:
@@ -82,6 +95,9 @@ jobs:
         with:
           name: mle-training-package
           path: dist/
+
+      - name: Verify downloaded artifacts
+        run: ls -R dist/
 
       - name: Install package
         run: pip install dist/*.whl
