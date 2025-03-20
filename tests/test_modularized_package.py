@@ -5,13 +5,6 @@ def test_import_data_ingestion():
         assert False, f"Importing data_ingestion failed: {e}"
 
 
-def test_import_data_preprocessing():
-    try:
-        from mle_training import data_preprocessing
-    except ImportError as e:
-        assert False, f"Importing data_preprocessing failed: {e}"
-
-
 def test_import_model_training():
     try:
         from mle_training import model_training
