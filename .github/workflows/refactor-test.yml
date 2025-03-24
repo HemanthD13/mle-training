@@ -1,4 +1,4 @@
-name: Build and Test Modularized Package
+name: Build and Deploy Modularized Package
 
 on:
   push:
@@ -52,6 +52,24 @@ jobs:
         with:
           name: mle-training-package
           path: dist/
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Miniforge (Mambaforge)
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          installer-url: https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
+          miniforge-variant: Mambaforge
+          use-mamba: true
+          auto-update-conda: true
+          environment-file: env.yml
+          activate-environment: mle-dev
 
       - name: Download built package
         uses: actions/download-artifact@v4
