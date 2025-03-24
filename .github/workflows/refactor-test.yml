@@ -1,4 +1,4 @@
-name: Build and Test Modularized Package
+=name: Build and Test Modularized Package
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        shell: bash -l {0}  # Ensure conda is available
+        shell: bash -l {0}
 
     steps:
       - name: Checkout repository
@@ -38,7 +38,7 @@ jobs:
       - name: Install dependencies
         run: |
           conda install -y flake8 pytest
-          conda list  # Verify installation
+          conda list  # Check installed packages
 
       - name: Run flake8 test
         run: flake8 src/mle_training/nonstandardcode.py
@@ -60,7 +60,7 @@ jobs:
     needs: build
     defaults:
       run:
-        shell: bash -l {0}  # Ensure conda is available
+        shell: bash -l {0}
 
     steps:
       - name: Checkout repository
@@ -84,12 +84,11 @@ jobs:
       - name: Install package and dependencies
         run: |
           pip install dist/*.whl
-          conda install -y numpy pandas scikit-learn  # Ensure required packages
+          conda install -y numpy pandas scikit-learn pytest
+          conda list  # Ensure pytest is installed
 
       - name: Run Modularized Code
         run: python src/main.py
 
       - name: Run tests with pytest
-        run: |
-          pip install pytest
-          pytest -v tests/test_modularized_package.py
+        run: pytest -v tests/test_modularized_package.py
