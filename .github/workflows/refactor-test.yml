@@ -38,7 +38,7 @@ jobs:
       - name: Install dependencies
         run: |
           conda install -y flake8 pytest
-          conda list  # Check installed packages
+          conda list
 
       - name: Run flake8 test
         run: flake8 src/mle_training/nonstandardcode.py
@@ -85,7 +85,14 @@ jobs:
         run: |
           pip install dist/*.whl
           conda install -y numpy pandas scikit-learn pytest
-          conda list  # Ensure pytest is installed
+          conda list
+          pip list
+
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)/src" >> $GITHUB_ENV
+
+      - name: Verify Python Path
+        run: echo $PYTHONPATH
 
       - name: Run Modularized Code
         run: python src/main.py
