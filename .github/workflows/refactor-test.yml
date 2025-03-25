@@ -1,9 +1,12 @@
-name: Build and Deploy
+name: Build and Test Modularized Package
 
 on:
   push:
     branches:
-      - pkg/issue#9/python-packaging
+      - enh/issue#13/modularize-script
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
@@ -32,14 +35,28 @@ jobs:
           environment-file: env.yml
           activate-environment: mle-dev
 
+      - name: Install dependencies
+        run: |
+          conda install -y flake8 pytest
+          conda list
+
+      - name: Run flake8 on main.py
+        run: flake8 src/main.py
+
       - name: Build the package
         run: python setup.py sdist bdist_wheel
+
+      - name: Show directory structure after building
+        run: tree -L 3
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: mle-training-package
-          path: dist/
+          path: |
+            dist/
+            src/
+            tests/
 
   deploy:
     runs-on: ubuntu-latest
@@ -49,14 +66,29 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - name: Download built package
+      - name: Download built package and source code
         uses: actions/download-artifact@v4
         with:
           name: mle-training-package
           path: dist/
 
-      - name: Install package
-        run: pip install dist/*.whl
+      - name: Show directory structure
+        run: tree -L 3
 
-      - name: Ensure required packages are installed
-        run: pip install numpy pandas scipy six scikit-learn matplotlib
+      - name: Install package and dependencies
+        run: |
+          pip install dist/*.whl
+          pip install numpy pandas scikit-learn pytest
+          pip list
+
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)/dist/src:$(pwd)/dist" >> $GITHUB_ENV
+
+      - name: Verify Python Path
+        run: echo $PYTHONPATH
+
+      - name: Run Modularized Code (main.py)
+        run: python dist/src/main.py
+
+      - name: Run tests with pytest
+        run: pytest -v dist/tests
