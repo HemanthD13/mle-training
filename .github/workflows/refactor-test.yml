@@ -49,13 +49,13 @@ jobs:
       - name: Show directory structure after building
         run: tree -L 3
 
-      - name: Upload build artifacts
+      - name: Upload build artifacts (package + src/main.py)
         uses: actions/upload-artifact@v4
         with:
           name: mle-training-package
           path: |
             dist/
-            src/main.py
+            src/
 
   deploy:
     runs-on: ubuntu-latest
@@ -71,7 +71,7 @@ jobs:
           name: mle-training-package
           path: dist/
 
-      - name: Verify artifact structure
+      - name: Debug artifact contents
         run: ls -R dist/
 
       - name: Install package and dependencies
@@ -82,18 +82,13 @@ jobs:
           pip list
 
       - name: Set PYTHONPATH
-        run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)/src" >> $GITHUB_ENV
-
-      - name: Move main.py to src directory
-        run: |
-          mkdir -p src
-          mv dist/main.py src/main.py
+        run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)/dist/src" >> $GITHUB_ENV
 
       - name: Verify Python Path
         run: echo $PYTHONPATH
 
       - name: Run Modularized Code (main.py)
-        run: python src/main.py
+        run: python dist/src/main.py
 
       - name: Run tests with pytest
         run: pytest -v tests/test_modularized_package.py
