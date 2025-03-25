@@ -40,8 +40,8 @@ jobs:
           conda install -y flake8 pytest
           conda list
 
-      - name: Run flake8 test
-        run: flake8 src/mle_training/nonstandardcode.py
+      - name: Run flake8 on main.py
+        run: flake8 src/main.py
 
       - name: Build the package
         run: python setup.py sdist bdist_wheel
@@ -94,7 +94,7 @@ jobs:
       - name: Verify Python Path
         run: echo $PYTHONPATH
 
-      - name: Run Modularized Code
+      - name: Run Modularized Code (main.py)
         run: python src/main.py
 
       - name: Run tests with pytest

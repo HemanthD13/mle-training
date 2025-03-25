@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - setup/issue#7/ci-conda-automation
-  pull_request:
-    branches:
-      - main
 
 jobs:
   build:
@@ -25,21 +22,6 @@ jobs:
           environment-file: env.yml
           activate-environment: mle-dev
 
-
-      - name: Install dependencies
+      - name: Build the package
         shell: bash -l {0}
-        run: |
-          conda activate mle-dev
-          conda install -y flake8
-
-      - name: Run flake8 test
-        shell: bash -l {0}
-        run: |
-          conda activate mle-dev
-          flake8 src/mle_training/nonstandardcode.py
-
-      - name: Run nonstandardcode.py
-        shell: bash -l {0}
-        run: |
-          conda activate mle-dev
-          python src/mle_training/nonstandardcode.py
+        run: python setup.py sdist bdist_wheel
