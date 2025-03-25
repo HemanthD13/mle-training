@@ -1,0 +1,75 @@
+name: Unit testing
+
+on:
+  push:
+    branches:
+      - enh/issue#15/add-unit-tests
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install tree CLI
+        run: sudo apt-get update && sudo apt-get install -y tree
+
+      - name: Show directory structure before building
+        run: tree -L 3
+
+      - name: Setup Miniforge (Mambaforge)
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          installer-url: https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
+          miniforge-variant: Mambaforge
+          use-mamba: true
+          auto-update-conda: true
+          environment-file: env.yml
+          activate-environment: mle-dev
+
+      - name: Install dependencies
+        run: |
+          conda install -y flake8 pytest
+          pip install -e .
+
+      - name: Run flake8 test
+        run: flake8 src/main.py
+
+      - name: Run tests with pytest
+        run: |
+          pytest -v tests/
+
+      - name: Build the package
+        run: python setup.py sdist bdist_wheel
+
+      - name: Show directory structure after building
+        run: tree -L 3
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mle-training-package
+          path: dist/
+
+      - name: Download built package
+        uses: actions/download-artifact@v4
+        with:
+          name: mle-training-package
+          path: dist/
+
+      - name: Install package
+        run: pip install dist/*.whl
+
+      - name: Run Modularized Code
+        run: |
+          python src/main.py
+
+
