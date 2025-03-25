@@ -25,6 +25,14 @@ jobs:
       - name: Show directory structure before building
         run: tree -L 3
 
+      - name: Cache Miniforge environment
+        uses: actions/cache@v3
+        with:
+          path: /usr/share/miniconda3
+          key: conda-${{ runner.os }}-${{ hashFiles('env.yml') }}
+          restore-keys: |
+            conda-${{ runner.os }}
+
       - name: Setup Miniforge (Mambaforge)
         uses: conda-incubator/setup-miniconda@v2
         with:
@@ -37,7 +45,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          conda install -y flake8 pytest
+          conda install -y flake8 pytest numpy pandas scikit-learn
           conda list
 
       - name: Run flake8 on main.py
@@ -49,7 +57,7 @@ jobs:
       - name: Show directory structure after building
         run: tree -L 3
 
-      - name: Upload build artifacts (package + src/main.py)
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: mle-training-package
@@ -65,19 +73,23 @@ jobs:
         shell: bash -l {0}
 
     steps:
+      - name: Cache Miniforge environment
+        uses: actions/cache@v3
+        with:
+          path: /usr/share/miniconda3
+          key: conda-${{ runner.os }}-${{ hashFiles('env.yml') }}
+          restore-keys: |
+            conda-${{ runner.os }}
+
       - name: Download built package
         uses: actions/download-artifact@v4
         with:
           name: mle-training-package
           path: dist/
 
-      - name: Debug artifact contents
-        run: ls -R dist/
-
       - name: Install package and dependencies
         run: |
           pip install dist/*.whl
-          conda install -y numpy pandas scikit-learn pytest
           conda list
           pip list
 
@@ -91,4 +103,4 @@ jobs:
         run: python dist/src/main.py
 
       - name: Run tests with pytest
-        run: pytest -v tests/test_modularized_package.py
+        run: pytest -v dist/tests/test_modularized_package.py
