@@ -1,6 +1,6 @@
 import pandas as pd
 
-from mle_training.data_preprocessing import preprocess_data
+from mle_training.data_ingestion import preprocess_data
 
 
 def test_preprocess_housing_data():
