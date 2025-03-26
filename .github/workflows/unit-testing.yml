@@ -54,11 +54,13 @@ jobs:
       - name: Show directory structure after building
         run: tree -L 3
 
-      - name: Upload build artifacts
+      - name: Upload build artifacts (Package + Script)
         uses: actions/upload-artifact@v4
         with:
           name: mle-training-package
-          path: dist/*.whl
+          path: |
+            dist/*.whl
+            src/main.py
 
   deploy:
     runs-on: ubuntu-latest
@@ -68,7 +70,7 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - name: Download built package
+      - name: Download built package and script
         uses: actions/download-artifact@v4
         with:
           name: mle-training-package
@@ -81,4 +83,4 @@ jobs:
         run: pip install dist/*.whl
 
       - name: Run Modularized Code
-        run: python src/main.py
+        run: python dist/main.py
