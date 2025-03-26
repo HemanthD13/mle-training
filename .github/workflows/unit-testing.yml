@@ -80,10 +80,10 @@ jobs:
           path: ./mle-training-package/
 
       - name: Verify downloaded artifacts
-        run: ls -lh ./mle-training-package/
+        run: tree ./mle-training-package/
 
       - name: Install package
         run: pip install ./mle-training-package/dist/*.whl
 
       - name: Run Modularized Code
-        run: python ./mle-training-package/main.py
+        run: python ./mle-training-package/src/main.py
