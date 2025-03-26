@@ -57,17 +57,17 @@ jobs:
       - name: Show directory structure after building
         run: tree -L 3
 
-      - name: Package Conda Environment
-        run: tar -czvf mle-dev-env.tar.gz /usr/share/miniconda3/envs/mle-dev/
+      - name: Package Conda and Environment
+        run: tar -czvf miniforge-with-env.tar.gz /usr/share/miniconda3/
 
-      - name: Upload build artifacts (Package + Env + Script)
+      - name: Upload build artifacts (Package + Conda + Script)
         uses: actions/upload-artifact@v4
         with:
           name: mle-training-package
           path: |
             dist/
             src/main.py
-            mle-dev-env.tar.gz
+            miniforge-with-env.tar.gz
 
   deploy:
     runs-on: ubuntu-latest
@@ -86,18 +86,25 @@ jobs:
       - name: Verify downloaded artifacts
         run: tree ./mle-training-package/
 
-      - name: Restore Conda Environment
+      - name: Restore Miniforge and Conda Environment
         run: |
-          sudo mkdir -p /usr/share/miniconda3/envs/
-          sudo tar -xzvf ./mle-training-package/mle-dev-env.tar.gz -C /usr/share/miniconda3/envs/
-          echo "Conda environment restored."
+          sudo tar -xzvf ./mle-training-package/miniforge-with-env.tar.gz -C /
+          echo "Conda environment and Miniforge restored."
+
+      - name: Initialize Conda
+        run: |
+          . /usr/share/miniconda3/etc/profile.d/conda.sh
+          conda activate mle-dev
+          conda info --envs
 
       - name: Install package
         run: |
-          source /usr/share/miniconda3/bin/activate mle-dev
+          . /usr/share/miniconda3/etc/profile.d/conda.sh
+          conda activate mle-dev
           pip install ./mle-training-package/dist/*.whl
 
       - name: Run Modularized Code
         run: |
-          source /usr/share/miniconda3/bin/activate mle-dev
+          . /usr/share/miniconda3/etc/profile.d/conda.sh
+          conda activate mle-dev
           python ./mle-training-package/src/main.py
