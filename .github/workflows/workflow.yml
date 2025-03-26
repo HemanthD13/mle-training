@@ -1,0 +1,132 @@
+name: ML Pipeline
+
+on:
+  push:
+    branches:
+      - feature/#17/workflow
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  unit-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install tree CLI
+        run: sudo apt-get update && sudo apt-get install -y tree
+
+      - name: Show directory structure
+        run: tree -L 3
+
+      - name: Setup Conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          use-mamba: true
+          environment-file: environment.yml
+          activate-environment: mle-dev
+
+      - name: Install dependencies
+        run: |
+          pip install -e .
+
+      - name: Run unit tests
+        run: pytest tests/
+
+  build:
+    runs-on: ubuntu-latest
+    needs: unit-test
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          use-mamba: true
+          environment-file: environment.yml
+          activate-environment: mle-dev
+
+      - name: Build package
+        run: python setup.py sdist bdist_wheel
+
+      - name: Install package from wheel
+        run: pip install dist/*.whl
+
+      - name: Run installation tests
+        run: pytest tests/
+
+      - name: Upload built artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mle-training-package
+          path: dist/
+
+      - name: Upload environment file
+        uses: actions/upload-artifact@v4
+        with:
+          name: myenv-file
+          path: environment.yml
+
+      - name: Upload scripts directory
+        uses: actions/upload-artifact@v4
+        with:
+          name: scripts-folder
+          path: scripts/
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Download environment file
+        uses: actions/download-artifact@v4
+        with:
+          name: myenv-file
+
+      - name: Setup Conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          use-mamba: true
+          environment-file: environment.yml
+          activate-environment: mle-dev
+
+      - name: Download built package
+        uses: actions/download-artifact@v4
+        with:
+          name: mle-training-package
+          path: dist/
+
+      - name: Download scripts directory
+        uses: actions/download-artifact@v4
+        with:
+          name: scripts-folder
+          path: scripts/
+
+      - name: Install package
+        run: pip install dist/*.whl
+
+      - name: Run ML scripts in help mode
+        run: |
+          python scripts/ingest_data.py -h
+          python scripts/train.py -h
+          python scripts/score.py -h
+
+      - name: Run ML scripts
+        run: |
+          python scripts/ingest_data.py data/
+          python scripts/train.py data/ models/
+          python scripts/score.py models/ data/
