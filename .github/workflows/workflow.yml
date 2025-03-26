@@ -3,7 +3,7 @@ name: ML Pipeline
 on:
   push:
     branches:
-      - feature/#17/workflow
+      - enh/issue#17/add-ml-workflow
   pull_request:
     branches:
       - main
@@ -23,13 +23,13 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y tree
 
       - name: Show directory structure
-        run: tree -L 3
+        run: tree -L 4
 
       - name: Setup Conda
         uses: conda-incubator/setup-miniconda@v2
         with:
           use-mamba: true
-          environment-file: environment.yml
+          environment-file: env.yml
           activate-environment: mle-dev
 
       - name: Install dependencies
@@ -37,7 +37,7 @@ jobs:
           pip install -e .
 
       - name: Run unit tests
-        run: pytest tests/
+        run: pytest tests/unit/
 
   build:
     runs-on: ubuntu-latest
@@ -54,7 +54,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           use-mamba: true
-          environment-file: environment.yml
+          environment-file: env.yml
           activate-environment: mle-dev
 
       - name: Build package
@@ -63,8 +63,8 @@ jobs:
       - name: Install package from wheel
         run: pip install dist/*.whl
 
-      - name: Run installation tests
-        run: pytest tests/
+      - name: Run function tests
+        run: pytest tests/function/
 
       - name: Upload built artifacts
         uses: actions/upload-artifact@v4
@@ -76,7 +76,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: myenv-file
-          path: environment.yml
+          path: env.yml
 
       - name: Upload scripts directory
         uses: actions/upload-artifact@v4
@@ -101,7 +101,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           use-mamba: true
-          environment-file: environment.yml
+          environment-file: env.yml
           activate-environment: mle-dev
 
       - name: Download built package
