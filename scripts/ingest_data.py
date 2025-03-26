@@ -1,8 +1,11 @@
 import argparse
 import os
 
-from mle_training.data_ingestion import fetch_housing_data, load_housing_data
-from mle_training.data_preprocessing import preprocess_data
+from mle_training.data_ingestion import (
+    fetch_housing_data,
+    load_housing_data,
+    preprocess_data,
+)
 
 
 def ingest_data(output_folder):
