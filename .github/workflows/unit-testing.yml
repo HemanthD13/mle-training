@@ -51,6 +51,9 @@ jobs:
           python setup.py sdist bdist_wheel
           ls -lh dist/
 
+      - name: Verify package contents
+        run: ls -lh dist/
+
       - name: Show directory structure after building
         run: tree -L 3
 
@@ -59,7 +62,7 @@ jobs:
         with:
           name: mle-training-package
           path: |
-            dist/*.whl
+            dist/
             src/main.py
 
   deploy:
@@ -74,13 +77,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: mle-training-package
-          path: dist/
+          path: ./mle-training-package/
 
       - name: Verify downloaded artifacts
-        run: ls -lh dist/
+        run: ls -lh ./mle-training-package/
 
       - name: Install package
-        run: pip install dist/*.whl
+        run: pip install ./mle-training-package/dist/*.whl
 
       - name: Run Modularized Code
-        run: python dist/main.py
+        run: python ./mle-training-package/main.py
