@@ -61,7 +61,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mle-training-package
-          path: dist/
+          path: |
+            dist/
+            src/main.py
 
   deploy:
     runs-on: ubuntu-latest
