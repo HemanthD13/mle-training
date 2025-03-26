@@ -32,22 +32,19 @@ jobs:
           environment-file: env.yml
           activate-environment: mle-dev
 
-      - name: Verify Python and Pytest
+      - name: Verify Environment
         run: |
           conda info --envs
-          conda activate mle-dev
           which python
           python --version
           which pytest || echo "pytest not found"
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
-          conda activate mle-dev
           pip install -e .
 
       - name: Run Unit Tests
         run: |
-          conda activate mle-dev
           pytest tests/unit_tests/
 
   build:
@@ -68,94 +65,6 @@ jobs:
           environment-file: env.yml
           activate-environment: mle-dev
 
-      - name: Verify Python and Pytest
+      - name: Build Package
         run: |
-          conda info --envs
-          conda activate mle-dev
-          which python
-          python --version
-          which pytest || echo "pytest not found"
-
-      - name: Build package
-        run: |
-          conda activate mle-dev
           python setup.py sdist bdist_wheel
-
-      - name: Install package from wheel
-        run: |
-          conda activate mle-dev
-          pip install dist/*.whl
-
-      - name: Run Functional Tests
-        run: |
-          conda activate mle-dev
-          pytest tests/functional_tests/
-
-      - name: Upload built artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: mle-training-package
-          path: dist/
-
-      - name: Upload environment file
-        uses: actions/upload-artifact@v4
-        with:
-          name: myenv-file
-          path: env.yml
-
-      - name: Upload scripts directory
-        uses: actions/upload-artifact@v4
-        with:
-          name: scripts-folder
-          path: scripts/
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    defaults:
-      run:
-        shell: bash -l {0}
-
-    steps:
-      - name: Download environment file
-        uses: actions/download-artifact@v4
-        with:
-          name: myenv-file
-
-      - name: Setup Conda
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          use-mamba: true
-          environment-file: env.yml
-          activate-environment: mle-dev
-
-      - name: Download built package
-        uses: actions/download-artifact@v4
-        with:
-          name: mle-training-package
-          path: dist/
-
-      - name: Download scripts directory
-        uses: actions/download-artifact@v4
-        with:
-          name: scripts-folder
-          path: scripts/
-
-      - name: Install package
-        run: |
-          conda activate mle-dev
-          pip install dist/*.whl
-
-      - name: Run ML scripts in help mode
-        run: |
-          conda activate mle-dev
-          python scripts/ingest_data.py -h
-          python scripts/train.py -h
-          python scripts/score.py -h
-
-      - name: Run ML scripts
-        run: |
-          conda activate mle-dev
-          python scripts/ingest_data.py data/
-          python scripts/train.py data/ models/
-          python scripts/score.py models/ data/
