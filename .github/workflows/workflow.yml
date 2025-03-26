@@ -19,11 +19,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install tree CLI
+      - name: Install tree CLI (for debugging)
         run: sudo apt-get update && sudo apt-get install -y tree
 
       - name: Show directory structure
-        run: tree -L 4
+        run: tree -L 3
 
       - name: Setup Conda
         uses: conda-incubator/setup-miniconda@v2
@@ -32,12 +32,23 @@ jobs:
           environment-file: env.yml
           activate-environment: mle-dev
 
+      - name: Verify Python and Pytest
+        run: |
+          source ~/.bashrc
+          conda activate mle-dev
+          which python
+          python --version
+          which pytest || echo "pytest not found"
+
       - name: Install dependencies
         run: |
+          conda activate mle-dev
           pip install -e .
 
-      - name: Run unit tests
-        run: pytest tests/unit/
+      - name: Run Unit Tests
+        run: |
+          conda activate mle-dev
+          pytest tests/unit_tests/
 
   build:
     runs-on: ubuntu-latest
@@ -57,14 +68,28 @@ jobs:
           environment-file: env.yml
           activate-environment: mle-dev
 
+      - name: Verify Python and Pytest
+        run: |
+          source ~/.bashrc
+          conda activate mle-dev
+          which python
+          python --version
+          which pytest || echo "pytest not found"
+
       - name: Build package
-        run: python setup.py sdist bdist_wheel
+        run: |
+          conda activate mle-dev
+          python setup.py sdist bdist_wheel
 
       - name: Install package from wheel
-        run: pip install dist/*.whl
+        run: |
+          conda activate mle-dev
+          pip install dist/*.whl
 
-      - name: Run function tests
-        run: pytest tests/function/
+      - name: Run Functional Tests
+        run: |
+          conda activate mle-dev
+          pytest tests/functional_tests/
 
       - name: Upload built artifacts
         uses: actions/upload-artifact@v4
@@ -117,16 +142,20 @@ jobs:
           path: scripts/
 
       - name: Install package
-        run: pip install dist/*.whl
+        run: |
+          conda activate mle-dev
+          pip install dist/*.whl
 
       - name: Run ML scripts in help mode
         run: |
+          conda activate mle-dev
           python scripts/ingest_data.py -h
           python scripts/train.py -h
           python scripts/score.py -h
 
       - name: Run ML scripts
         run: |
+          conda activate mle-dev
           python scripts/ingest_data.py data/
           python scripts/train.py data/ models/
           python scripts/score.py models/ data/
