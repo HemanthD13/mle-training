@@ -62,7 +62,7 @@ jobs:
         with:
           name: mle-training-package
           path: |
-            dist/
+            dist/*.whl
             src/main.py
 
   deploy:
@@ -83,7 +83,7 @@ jobs:
         run: tree ./mle-training-package/
 
       - name: Install package
-        run: pip install ./mle-training-package/dist/*.whl
+        run: pip install ./mle-training-package/*.whl
 
       - name: Run Modularized Code
-        run: python ./mle-training-package/src/main.py
+        run: python ./mle-training-package/main.py
