@@ -34,7 +34,7 @@ jobs:
 
       - name: Verify Python and Pytest
         run: |
-          source ~/.bashrc
+          conda info --envs
           conda activate mle-dev
           which python
           python --version
@@ -70,7 +70,7 @@ jobs:
 
       - name: Verify Python and Pytest
         run: |
-          source ~/.bashrc
+          conda info --envs
           conda activate mle-dev
           which python
           python --version
