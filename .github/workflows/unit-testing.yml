@@ -48,7 +48,7 @@ jobs:
 
       - name: Build the package
         run: |
-          python setup.py sdist bdist_wheel
+          python setup.py sdist bdist_wheel || { echo "Build failed"; exit 1; }
           ls -lh dist/
 
       - name: Verify package contents
@@ -61,9 +61,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mle-training-package
-          path: |
-            dist/*.whl
-            src/main.py
+          path: dist/
 
   deploy:
     runs-on: ubuntu-latest
@@ -83,7 +81,7 @@ jobs:
         run: tree ./mle-training-package/
 
       - name: Install package
-        run: pip install ./mle-training-package/*.whl
+        run: pip install $(find ./mle-training-package -name "*.whl")
 
       - name: Run Modularized Code
-        run: python ./mle-training-package/main.py
+        run: python ./mle-training-package/src/main.py
