@@ -64,6 +64,7 @@ jobs:
           path: |
             dist/
             src/main.py
+            env.yml
 
   deploy:
     runs-on: ubuntu-latest
@@ -81,6 +82,16 @@ jobs:
 
       - name: Verify downloaded artifacts
         run: tree ./mle-training-package/
+
+      - name: Setup Miniforge in deploy environment
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          installer-url: https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
+          miniforge-variant: Mambaforge
+          use-mamba: true
+          auto-update-conda: true
+          environment-file: ./mle-training-package/env.yml
+          activate-environment: mle-dev
 
       - name: Install package
         run: pip install $(find ./mle-training-package -name "*.whl")
