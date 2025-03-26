@@ -141,7 +141,7 @@ jobs:
           name: scripts-folder
           path: scripts/
 
-      - name: Display directory structure (debugging)
+      - name: Display directory structure (for debugging)
         run: |
           conda activate mle-dev
           tree -L 3
@@ -154,7 +154,7 @@ jobs:
       - name: Verify package installation
         run: |
           conda activate mle-dev
-          python -c "import your_package; print('Package is installed successfully')"
+          python -c "import mle_training; print('Package is installed successfully')"
 
       - name: Run ML scripts in help mode
         run: |
@@ -165,7 +165,7 @@ jobs:
 
       - name: Run ML scripts with error check
         run: |
-          set -e  # Exit if any command fails
+          set -e  # Exit on error if any command fails
           conda activate mle-dev
           mkdir -p data models
           python scripts/ingest_data.py data/
