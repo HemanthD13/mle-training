@@ -3,7 +3,7 @@ name: ML Pipeline
 on:
   push:
     branches:
-      - enh/issue#17/add-ml-workflow
+      - enh/issue#19/add-logging-to-ml-workflow
   pull_request:
     branches:
       - main
@@ -32,14 +32,6 @@ jobs:
           environment-file: env.yml
           activate-environment: mle-dev
 
-      - name: Verify Python and Pytest
-        run: |
-          conda info --envs
-          conda activate mle-dev
-          which python
-          python --version
-          which pytest || echo "pytest not found"
-
       - name: Install dependencies
         run: |
           conda activate mle-dev
@@ -67,14 +59,6 @@ jobs:
           use-mamba: true
           environment-file: env.yml
           activate-environment: mle-dev
-
-      - name: Verify Python and Pytest
-        run: |
-          conda info --envs
-          conda activate mle-dev
-          which python
-          python --version
-          which pytest || echo "pytest not found"
 
       - name: Build package
         run: |
@@ -156,18 +140,9 @@ jobs:
           conda activate mle-dev
           python -c "import mle_training; print('Package is installed successfully')"
 
-      - name: Run ML scripts in help mode
+      - name: Run ML scripts with timestamped logging
         run: |
           conda activate mle-dev
-          python scripts/ingest_data.py -h
-          python scripts/train.py -h
-          python scripts/score.py -h
-
-      - name: Run ML scripts with error check
-        run: |
-          set -e  # Exit on error if any command fails
-          conda activate mle-dev
-          mkdir -p data models
-          python scripts/ingest_data.py data/
-          python scripts/train.py data/ models/
-          python scripts/score.py models/ data/
+          python scripts/ingest_data.py data/ --log-level INFO
+          python scripts/train.py data/ models/ --log-level INFO
+          python scripts/score.py models/ data/ --log-level INFO
