@@ -1,79 +1,104 @@
 import argparse
-import logging
-import os
 
 import joblib
-import pandas as pd
+import numpy as np
+from config import (
+    RANDOM_SEED,
+    RF_CV_FOLDS,
+    RF_MAX_FEATURES_HIGH,
+    RF_MAX_FEATURES_LOW,
+    RF_N_ESTIMATORS_HIGH,
+    RF_N_ESTIMATORS_LOW,
+    RF_N_ITER,
+    SCORING_METRIC,
+    TEST_SIZE,
+)
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import RandomizedSearchCV, train_test_split
 
-from mle_training.logger import setup_logger
-from mle_training.model_training import train_models
+
+def load_data(data_path):
+    """
+    Loads dataset from the given file path.
+
+    Parameters
+    ----------
+    data_path : str
+        Path to the dataset file.
+
+    Returns
+    -------
+    tuple
+        A tuple containing features (X) and target values (y).
+    """
+    data = joblib.load(data_path)
+    X = data.drop(columns=["target"])
+    y = data["target"]
+    return X, y
 
 
-def train_model(data_folder, model_folder):
-    """Loads dataset, trains models, and saves them."""
-    os.makedirs(model_folder, exist_ok=True)
-    logging.info("Starting model training...")
+def train_model(X_train, y_train):
+    """
+    Trains a RandomForestRegressor model using RandomizedSearchCV.
 
-    train_path = os.path.join(data_folder, "train.csv")
-    train_label_path = os.path.join(data_folder, "x_label.csv")
-    try:
-        X_train = pd.read_csv(train_path)
-        y_train = pd.read_csv(train_label_path)
-        logging.debug(
-            f"Loaded training data from {train_path} and labels from {train_label_path}"
-        )
-    except FileNotFoundError as e:
-        logging.error(f"Error loading training data: {e}")
-        return  # Exit if data loading fails
+    Parameters
+    ----------
+    X_train : numpy.ndarray or pandas.DataFrame
+        Training feature matrix.
+    y_train : numpy.ndarray or pandas.Series
+        Target values for training.
 
-    if X_train.empty or y_train.empty:
-        logging.warning("Training data or labels are empty.")
-        return
+    Returns
+    -------
+    object
+        The trained RandomForestRegressor model.
+    """
+    param_dist = {
+        "n_estimators": np.arange(RF_N_ESTIMATORS_LOW, RF_N_ESTIMATORS_HIGH),
+        "max_features": np.arange(RF_MAX_FEATURES_LOW, RF_MAX_FEATURES_HIGH),
+    }
 
-    try:
-        models = {
-            "linear_regression": train_models(X_train, y_train)["linear_regression"],
-            "decision_tree": train_models(X_train, y_train)["decision_tree"],
-            "random_forest": train_models(X_train, y_train)["random_forest"],
-        }
-        logging.debug("Models trained successfully.")
-    except Exception as e:
-        logging.error(f"Error during model training: {e}")
-        return
+    model = RandomForestRegressor(random_state=RANDOM_SEED)
+    search = RandomizedSearchCV(
+        model,
+        param_distributions=param_dist,
+        n_iter=RF_N_ITER,
+        cv=RF_CV_FOLDS,
+        scoring=SCORING_METRIC,
+        random_state=RANDOM_SEED,
+    )
 
-    for name, model in models.items():
-        try:
-            model_path = os.path.join(model_folder, f"{name}.pkl")
-            joblib.dump(model, model_path)
-            logging.info(f"Saved {name} model to {model_path}")
-            logging.debug(f"Model {name} saved successfully.")
-        except Exception as e:
-            logging.error(f"Error saving {name} model: {e}")
-            logging.debug(f"Error details: {e}")
+    search.fit(X_train, y_train)
+    return search.best_estimator_
+
+
+def main(data_path, model_output_path):
+    """
+    Main function to load data, train a model, and save it.
+
+    Parameters
+    ----------
+    data_path : str
+        Path to the dataset file.
+    model_output_path : str
+        Path to save the trained model.
+    """
+    X, y = load_data(data_path)
+    X_train, _, y_train, _ = train_test_split(
+        X, y, test_size=TEST_SIZE, random_state=RANDOM_SEED
+    )
+
+    model = train_model(X_train, y_train)
+    joblib.dump(model, model_output_path)
+    print(f"Model saved at {model_output_path}")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Train ML models.")
-    parser.add_argument("data_folder", type=str, help="Folder containing train.csv")
-    parser.add_argument("model_folder", type=str, help="Folder to save trained models")
+    parser = argparse.ArgumentParser(description="Train a RandomForest model.")
+    parser.add_argument("data_path", type=str, help="Path to the dataset file")
     parser.add_argument(
-        "--log-level",
-        type=str,
-        default="INFO",
-        help="Logging level",
-    )
-    parser.add_argument(
-        "--log-path",
-        type=str,
-        help="File to write logs",
-    )
-    parser.add_argument(
-        "--no-console-log",
-        action="store_true",
-        help="Disable console logging",
+        "model_output_path", type=str, help="Path to save the trained model"
     )
 
     args = parser.parse_args()
-    setup_logger(args.log_level, args.log_path, args.no_console_log)
-
-    train_model(args.data_folder, args.model_folder)
+    main(args.data_path, args.model_output_path)

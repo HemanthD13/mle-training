@@ -13,6 +13,16 @@ HOUSING_URL = DOWNLOAD_ROOT + "datasets/housing/housing.tgz"
 
 
 def fetch_housing_data(housing_url=HOUSING_URL, housing_path=HOUSING_PATH):
+    """
+    Fetches the housing dataset by downloading and extracting it from the specified URL.
+
+    Parameters
+    ----------
+    housing_url : str, optional
+        The URL to fetch the housing dataset from (default is the URL in `HOUSING_URL`).
+    housing_path : str, optional
+        The path where the dataset should be stored (default is `HOUSING_PATH`).
+    """
     os.makedirs(housing_path, exist_ok=True)
     tgz_path = os.path.join(housing_path, "housing.tgz")
     urllib.request.urlretrieve(housing_url, tgz_path)
@@ -22,11 +32,46 @@ def fetch_housing_data(housing_url=HOUSING_URL, housing_path=HOUSING_PATH):
 
 
 def load_housing_data(housing_path=HOUSING_PATH):
+    """
+    Loads the housing dataset from the specified directory.
+
+    Parameters
+    ----------
+    housing_path : str, optional
+        The directory where the dataset is stored (default is `HOUSING_PATH`).
+
+    Returns
+    -------
+    pandas.DataFrame
+        The loaded housing dataset.
+    """
     csv_path = os.path.join(housing_path, "housing.csv")
     return pd.read_csv(csv_path)
 
 
 def preprocess_data(housing):
+    """
+    Preprocesses the housing data by performing tasks like feature engineering,
+    handling missing values, and splitting the data into training and testing sets.
+
+    Parameters
+    ----------
+    housing : pandas.DataFrame
+        The raw housing data to preprocess.
+
+    Returns
+    -------
+    tuple
+        A tuple containing:
+        - `housing_prepared` : pandas.DataFrame
+            The preprocessed training data with features.
+        - `X_test_prepared` : pandas.DataFrame
+            The preprocessed test data with features.
+        - `housing_labels` : pandas.Series
+            The labels for the training set.
+        - `y_test` : pandas.Series
+            The labels for the test set.
+    """
     housing["income_cat"] = pd.cut(
         housing["median_income"],
         bins=[0.0, 1.5, 3.0, 4.5, 6.0, np.inf],
