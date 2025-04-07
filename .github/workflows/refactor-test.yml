@@ -1,12 +1,12 @@
 name: Build and Test Modularized Package
 
-on:
-  push:
-    branches:
-      - enh/issue#13/modularize-script
-  pull_request:
-    branches:
-      - main
+#on:
+  #push:
+    #branches:
+     # - enh/issue#13/modularize-script
+  #pull_request:
+    #branches:
+     # - main
 
 jobs:
   build:

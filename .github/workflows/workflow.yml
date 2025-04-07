@@ -1,12 +1,12 @@
 name: ML Pipeline
 
-on:
-  push:
-    branches:
-      - enh/issue#19/add-logging-to-ml-workflow
-  pull_request:
-    branches:
-      - main
+#on:
+  #push:
+    #branches:
+      #- enh/issue#19/add-logging-to-ml-workflow
+  #pull_request:
+    #branches:
+      #- main
 
 jobs:
   unit-test:

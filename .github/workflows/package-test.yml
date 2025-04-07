@@ -1,9 +1,9 @@
 name: Testing Python Code
 
-on:
-  push:
-    branches:
-      - test/issue#11/pytest-workflow
+#on:
+  #push:
+    #branches:
+      #- test/issue#11/pytest-workflow
 
 jobs:
   build:
