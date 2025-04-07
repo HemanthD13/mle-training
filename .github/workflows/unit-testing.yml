@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - enh/issue#15/add-unit-tests
-  pull_request:
-    branches:
-      - main
+  #pull_request:
+    #branches:
+      #- main
 
 jobs:
   build:
