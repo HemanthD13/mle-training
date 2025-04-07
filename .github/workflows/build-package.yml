@@ -1,7 +1,9 @@
 name: CI Pipeline
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - setup/issue#7/ci-conda-automation
 
 jobs:
   build:

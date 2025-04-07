@@ -1,7 +1,12 @@
 name: Build and Test Modularized Package
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - enh/issue#13/modularize-script
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:

@@ -1,7 +1,9 @@
 name: Testing Python Code
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - test/issue#11/pytest-workflow
 
 jobs:
   build:
