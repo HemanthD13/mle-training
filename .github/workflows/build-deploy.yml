@@ -1,9 +1,8 @@
 name: Build and Deploy
 
-#on:
-  #push:
-    #branches:
-      #- pkg/issue#9/python-packaging
+on:
+  workflow_dispatch:
+
 
 jobs:
   build:

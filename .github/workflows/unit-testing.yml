@@ -1,12 +1,7 @@
 name: Unit Testing
 
-#on:
-  #push:
-    #branches:
-     # - enh/issue#15/add-unit-tests
-  #pull_request:
-   # branches:
-    #  - main
+on:
+  workflow_dispatch:
 
 jobs:
   build:
