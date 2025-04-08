@@ -28,7 +28,7 @@ def main():
     # Step 2: Preprocessing
     train_prepared, test_prepared, train_labels, test_labels = preprocess_data(housing)
 
-    # Step 3: Train Models
+    # Step 3: Train Model
     models = train_models(train_prepared, train_labels)
 
     # Step 4: Hyperparameter Tuning
