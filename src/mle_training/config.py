@@ -27,4 +27,4 @@ RF_MAX_FEATURES_HIGH = 8
 # Number of iterations for RandomizedSearchCV
 RF_N_ITER = 10
 RF_CV_FOLDS = 5  # Cross-validation folds
-SCORING_METRIC = "neg_mean_squared_error"  # Optimization metric
+SCORING_METRIC = "neg_mean_squared_error"  # Optimization metrics
