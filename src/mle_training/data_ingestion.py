@@ -100,7 +100,7 @@ def preprocess_data(housing):
     housing_labels = train_set["median_house_value"].copy()
     housing = train_set.drop("median_house_value", axis=1)
 
-    # Handling missing values
+    # Handling missing value
     imputer = SimpleImputer(strategy="median")
     housing_num = housing.drop("ocean_proximity", axis=1)
 
