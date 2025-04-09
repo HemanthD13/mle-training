@@ -34,7 +34,7 @@ def main():
     # Step 4: Hyperparameter Tuning
     best_model = hyperparameter_tuning(train_prepared, train_labels)
 
-    # Step 5: Evaluate Models
+    # Step 5: Evaluate Model
     evaluation_metrics = evaluate_model(best_model, test_prepared, test_labels)
     print(f"Final Evaluation Metrics: {evaluation_metrics}")
 
