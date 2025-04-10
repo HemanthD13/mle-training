@@ -98,8 +98,25 @@ def preprocess_data(housing):
     )
 
     housing_prepared = full_pipeline.fit_transform(housing)
+
+    # Define expected columns after the transformations
+    num_extra_features = 3 if FeatureAdder().add_bedrooms_per_room else 2
+    expected_columns = (
+        num_attribs
+        + ["rooms_per_household", "population_per_household"]
+        + (["bedrooms_per_room"] if FeatureAdder().add_bedrooms_per_room else [])
+        + list(
+            full_pipeline.transformers_[1][1]
+            .named_steps["onehot"]
+            .get_feature_names_out()
+        )
+    )
+
     X_test = test_set.drop("median_house_value", axis=1)
     y_test = test_set["median_house_value"].copy()
     X_test_prepared = full_pipeline.transform(X_test)
+
+    # Convert housing_prepared (numpy array) into a DataFrame with correct column names
+    housing_prepared = pd.DataFrame(housing_prepared, columns=expected_columns)
 
     return housing_prepared, X_test_prepared, housing_labels, y_test
