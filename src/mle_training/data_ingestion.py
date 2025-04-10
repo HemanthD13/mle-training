@@ -111,7 +111,29 @@ def preprocess_data(housing):
     )
 
     # Preprocess the training data
-    housing_prepared = full_pipeline.fit_transform(housing)
+    housing_prepared_array = full_pipeline.fit_transform(housing)
+
+    # Convert the result back to DataFrame with appropriate column names
+    # The columns for numerical features are generated dynamically
+    room_feature_names = [
+        "rooms_per_household",
+        "population_per_household",
+        "bedrooms_per_room" if "bedrooms_per_room" in num_attribs else "",
+    ]
+    room_feature_names = [
+        name for name in room_feature_names if name
+    ]  # Remove empty names
+    cat_columns = (
+        full_pipeline.transformers_[1][1]
+        .named_steps["onehot"]
+        .get_feature_names_out(input_features=cat_attribs)
+    )
+
+    # Create DataFrame with correct column names
+    housing_prepared = pd.DataFrame(
+        housing_prepared_array,
+        columns=num_attribs + room_feature_names + list(cat_columns),
+    )
 
     # Prepare the test data
     X_test = test_set.drop("median_house_value", axis=1)
