@@ -39,10 +39,15 @@ class FeatureAdder(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
-        rooms_per_household = X[:, 3] / X[:, 6]
-        population_per_household = X[:, 5] / X[:, 6]
+        # Convert to DataFrame to make it easier to reference by column names
+        X_df = pd.DataFrame(X, columns=num_attribs)
+
+        # Feature engineering
+        rooms_per_household = X_df["total_rooms"] / X_df["households"]
+        population_per_household = X_df["population"] / X_df["households"]
+
         if self.add_bedrooms_per_room:
-            bedrooms_per_room = X[:, 4] / X[:, 3]
+            bedrooms_per_room = X_df["total_bedrooms"] / X_df["total_rooms"]
             return np.c_[
                 X, rooms_per_household, population_per_household, bedrooms_per_room
             ]
@@ -51,14 +56,14 @@ class FeatureAdder(BaseEstimator, TransformerMixin):
 
 
 def preprocess_data(housing):
-    # Create the income category column
+    # Add the 'income_cat' column required for stratification
     housing["income_cat"] = pd.cut(
         housing["median_income"],
         bins=[0.0, 1.5, 3.0, 4.5, 6.0, np.inf],
         labels=[1, 2, 3, 4, 5],
     )
 
-    # Split the dataset into training and testing sets
+    # Stratified shuffle split for train/test data
     if housing["income_cat"].value_counts().min() < 2:
         train_set, test_set = train_test_split(housing, test_size=0.2, random_state=42)
     else:
@@ -67,19 +72,22 @@ def preprocess_data(housing):
             train_set = housing.loc[train_index]
             test_set = housing.loc[test_index]
 
-    # Drop the income_cat column from the train and test sets
+    # Drop the 'income_cat' column
     for set_ in (train_set, test_set):
         set_.drop("income_cat", axis=1, inplace=True)
 
-    # Separate the labels (target) and features (input)
+    # Split the dataset into features and labels
     housing_labels = train_set["median_house_value"].copy()
     housing = train_set.drop("median_house_value", axis=1)
 
     # Define numerical and categorical attributes
-    num_attribs = list(housing.drop("ocean_proximity", axis=1))
+    global num_attribs
+    num_attribs = list(
+        housing.drop("ocean_proximity", axis=1)
+    )  # Excluding the categorical column
     cat_attribs = ["ocean_proximity"]
 
-    # Create pipelines for numerical and categorical attributes
+    # Create numerical and categorical pipelines
     num_pipeline = Pipeline(
         [
             ("imputer", SimpleImputer(strategy="median")),
@@ -94,7 +102,7 @@ def preprocess_data(housing):
         ]
     )
 
-    # Full pipeline for preprocessing
+    # Combine both pipelines using a column transformer
     full_pipeline = ColumnTransformer(
         [
             ("num", num_pipeline, num_attribs),
@@ -102,27 +110,10 @@ def preprocess_data(housing):
         ]
     )
 
-    # Apply the full pipeline to the training data
+    # Preprocess the training data
     housing_prepared = full_pipeline.fit_transform(housing)
 
-    # Ensure housing_prepared is a Pandas DataFrame with correct column names
-    # Retrieve the column names for both numerical and categorical columns
-    num_column_names = num_attribs + [
-        "rooms_per_household",
-        "population_per_household",
-        "bedrooms_per_room",
-    ]
-    cat_column_names = (
-        full_pipeline.transformers_[1][1]
-        .named_steps["onehot"]
-        .get_feature_names_out(cat_attribs)
-    )
-    all_column_names = num_column_names + list(cat_column_names)
-
-    # Convert to DataFrame
-    housing_prepared = pd.DataFrame(housing_prepared, columns=all_column_names)
-
-    # Prepare test data (X_test)
+    # Prepare the test data
     X_test = test_set.drop("median_house_value", axis=1)
     y_test = test_set["median_house_value"].copy()
     X_test_prepared = full_pipeline.transform(X_test)
