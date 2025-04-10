@@ -109,7 +109,7 @@ def preprocess_data(housing):
         imputer.transform(housing_num), columns=housing_num.columns, index=housing.index
     )
 
-    # Recalculate derived features
+    # Recalculate derived feature
     housing_tr["rooms_per_household"] = (
         housing_tr["total_rooms"] / housing_tr["households"]
     )
