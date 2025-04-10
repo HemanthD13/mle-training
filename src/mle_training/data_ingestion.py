@@ -51,12 +51,14 @@ class FeatureAdder(BaseEstimator, TransformerMixin):
 
 
 def preprocess_data(housing):
+    # Create the income category column
     housing["income_cat"] = pd.cut(
         housing["median_income"],
         bins=[0.0, 1.5, 3.0, 4.5, 6.0, np.inf],
         labels=[1, 2, 3, 4, 5],
     )
 
+    # Split the dataset into training and testing sets
     if housing["income_cat"].value_counts().min() < 2:
         train_set, test_set = train_test_split(housing, test_size=0.2, random_state=42)
     else:
@@ -65,9 +67,11 @@ def preprocess_data(housing):
             train_set = housing.loc[train_index]
             test_set = housing.loc[test_index]
 
+    # Drop the income_cat column from the train and test sets
     for set_ in (train_set, test_set):
         set_.drop("income_cat", axis=1, inplace=True)
 
+    # Separate the labels (target) and features (input)
     housing_labels = train_set["median_house_value"].copy()
     housing = train_set.drop("median_house_value", axis=1)
 
@@ -75,7 +79,7 @@ def preprocess_data(housing):
     num_attribs = list(housing.drop("ocean_proximity", axis=1))
     cat_attribs = ["ocean_proximity"]
 
-    # Create pipelines
+    # Create pipelines for numerical and categorical attributes
     num_pipeline = Pipeline(
         [
             ("imputer", SimpleImputer(strategy="median")),
@@ -90,6 +94,7 @@ def preprocess_data(housing):
         ]
     )
 
+    # Full pipeline for preprocessing
     full_pipeline = ColumnTransformer(
         [
             ("num", num_pipeline, num_attribs),
@@ -97,26 +102,29 @@ def preprocess_data(housing):
         ]
     )
 
+    # Apply the full pipeline to the training data
     housing_prepared = full_pipeline.fit_transform(housing)
 
-    # Define expected columns after the transformations
-    num_extra_features = 3 if FeatureAdder().add_bedrooms_per_room else 2
-    expected_columns = (
-        num_attribs
-        + ["rooms_per_household", "population_per_household"]
-        + (["bedrooms_per_room"] if FeatureAdder().add_bedrooms_per_room else [])
-        + list(
-            full_pipeline.transformers_[1][1]
-            .named_steps["onehot"]
-            .get_feature_names_out()
-        )
+    # Ensure housing_prepared is a Pandas DataFrame with correct column names
+    # Retrieve the column names for both numerical and categorical columns
+    num_column_names = num_attribs + [
+        "rooms_per_household",
+        "population_per_household",
+        "bedrooms_per_room",
+    ]
+    cat_column_names = (
+        full_pipeline.transformers_[1][1]
+        .named_steps["onehot"]
+        .get_feature_names_out(cat_attribs)
     )
+    all_column_names = num_column_names + list(cat_column_names)
 
+    # Convert to DataFrame
+    housing_prepared = pd.DataFrame(housing_prepared, columns=all_column_names)
+
+    # Prepare test data (X_test)
     X_test = test_set.drop("median_house_value", axis=1)
     y_test = test_set["median_house_value"].copy()
     X_test_prepared = full_pipeline.transform(X_test)
-
-    # Convert housing_prepared (numpy array) into a DataFrame with correct column names
-    housing_prepared = pd.DataFrame(housing_prepared, columns=expected_columns)
 
     return housing_prepared, X_test_prepared, housing_labels, y_test
