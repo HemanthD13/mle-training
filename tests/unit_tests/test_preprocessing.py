@@ -30,13 +30,6 @@ def test_preprocess_housing_data():
         }
     )
 
-    # Create the 'income_cat' column required for stratification
-    data["income_cat"] = pd.cut(
-        data["median_income"],
-        bins=[0.0, 1.5, 3.0, 4.5, 6.0, float("inf")],
-        labels=[1, 2, 3, 4, 5],
-    )
-
     # Call preprocess_data which returns multiple datasets
     housing_prepared, X_test_prepared, housing_labels, y_test = preprocess_data(data)
 
