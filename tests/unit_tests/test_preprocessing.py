@@ -4,8 +4,17 @@ from mle_training.data_ingestion import preprocess_data
 
 
 def test_preprocess_housing_data():
-    """Test feature engineering in preprocess_housing_data function."""
+    """
+    Test feature engineering in preprocess_housing_data function.
 
+    This test checks that the preprocessing function correctly adds features
+    such as 'rooms_per_household', 'bedrooms_per_room', and
+    'population_per_household'. It also verifies that the features are
+    calculated correctly.
+
+    Raises:
+        AssertionError: If any of the checks fail.
+    """
     # Sample data simulating the housing dataset
     data = pd.DataFrame(
         {
@@ -15,19 +24,9 @@ def test_preprocess_housing_data():
             "population": [1000, 2000, 1500, 1800],
             "median_income": [3.0, 4.5, 3.5, 4.0],
             "ocean_proximity": ["NEAR BAY", "NEAR OCEAN", "NEAR BAY", "NEAR OCEAN"],
-            "longitude": [
-                -122.23,
-                -122.25,
-                -122.22,
-                -122.24,
-            ],  # Example longitude values
-            "latitude": [37.88, 37.85, 37.86, 37.87],  # Example latitude values
-            "median_house_value": [
-                200000,
-                300000,
-                250000,
-                275000,
-            ],  # Added median house value (target)
+            "longitude": [-122.23, -122.25, -122.22, -122.24],
+            "latitude": [37.88, 37.85, 37.86, 37.87],
+            "median_house_value": [200000, 300000, 250000, 275000],
         }
     )
 
@@ -52,7 +51,8 @@ def test_preprocess_housing_data():
         "population_per_household" in housing_prepared.columns
     ), "Feature 'population_per_household' missing!"
 
-    # Optionally, you can add assertions to check if features are correctly calculated for the first row
+    # Optionally, you can add assertions to check if features are correctly
+    # calculated for the first row
     assert (
         housing_prepared["rooms_per_household"][0] == 2.0
     ), "Incorrect 'rooms_per_household' calculation!"

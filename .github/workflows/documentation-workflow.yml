@@ -1,0 +1,50 @@
+name: Build Documentation
+
+on:
+  push:
+    branches:
+      - 'enh/issue#21/setup-sphinx-docs'
+  pull_request:
+    branches:
+      - 'main'
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install tree CLI
+        run: sudo apt-get update && sudo apt-get install -y tree
+
+      - name: Show directory structure before building docs
+        run: tree -L 3
+
+      - name: Setup Conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          use-mamba: true
+          environment-file: env.yml
+          activate-environment: mle-dev
+
+      - name: Install dependencies
+        shell: bash -l {0}
+        run: |
+          pip install sphinx sphinx-rtd-theme sphinx-autodoc-typehints
+
+      - name: Build documentation
+        shell: bash -l {0}
+        run: |
+          cd docs
+          make html
+
+      - name: Show directory structure after building docs
+        run: tree -L 3 docs/build
+
+      - name: Upload built documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation
+          path: docs/build/html/
+          retention-days: 1  # Set retention period to 1 day

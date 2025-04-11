@@ -3,7 +3,26 @@ import sys
 
 
 def setup_logger(log_level="INFO", log_path=None, no_console_log=False):
-    """Configures the logger with user-specified options."""
+    """
+    Configures the logger with user-specified options.
+
+    Parameters
+    ----------
+    log_level : str, optional
+        The logging level to use (default is "INFO"). Valid values are:
+        "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL".
+    log_path : str, optional
+        The file path where logs should be saved (default is None). If provided,
+        logs will be written to the specified file.
+    no_console_log : bool, optional
+        If True, disables console logging (default is False). If False,
+        logs will also be printed to the console.
+
+    Raises
+    ------
+    ValueError
+        If no valid logging handlers are provided (i.e., no log file or no console log).
+    """
     log_format = "%(asctime)s - %(levelname)s - %(message)s"
 
     handlers = []
@@ -21,6 +40,5 @@ def setup_logger(log_level="INFO", log_path=None, no_console_log=False):
 
     if not handlers:
         raise ValueError(
-            "No valid logging handlers available. \
-                         Check your log settings."
+            "No valid logging handlers available. Check your log settings."
         )

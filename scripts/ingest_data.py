@@ -11,7 +11,18 @@ from mle_training.logger import setup_logger
 
 
 def ingest_data(output_folder):
-    """Fetches dataset and creates training/validation datasets."""
+    """
+    Fetches dataset, processes it, and saves training/validation datasets.
+
+    Parameters
+    ----------
+    output_folder : str
+        Path to the folder where processed datasets will be saved.
+
+    Returns
+    -------
+    None
+    """
     logging.info("Starting data ingestion...")
     try:
         os.makedirs(output_folder, exist_ok=True)

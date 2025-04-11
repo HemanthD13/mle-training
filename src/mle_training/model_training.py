@@ -6,6 +6,24 @@ from sklearn.tree import DecisionTreeRegressor
 
 
 def train_models(X, y):
+    """
+    Trains multiple regression models on the given dataset.
+
+    Parameters
+    ----------
+    X : numpy.ndarray or pandas.DataFrame
+        Feature matrix used for training.
+    y : numpy.ndarray or pandas.Series
+        Target values corresponding to `X`.
+
+    Returns
+    -------
+    dict
+        A dictionary containing trained models:
+        - "linear_regression" : Trained LinearRegression model.
+        - "decision_tree" : Trained DecisionTreeRegressor model.
+        - "random_forest" : Trained RandomForestRegressor model.
+    """
     models = {
         "linear_regression": LinearRegression(),
         "decision_tree": DecisionTreeRegressor(random_state=42),
@@ -20,7 +38,28 @@ def train_models(X, y):
 
 
 def hyperparameter_tuning(X, y):
-    param_distribs = {"n_estimators": randint(1, 200), "max_features": randint(1, 8)}
+    """
+    Performs hyperparameter tuning for a RandomForestRegressor model.
+
+    Uses RandomizedSearchCV to find the best hyperparameters.
+
+    Parameters
+    ----------
+    X : numpy.ndarray or pandas.DataFrame
+        Feature matrix used for training.
+    y : numpy.ndarray or pandas.Series
+        Target values corresponding to `X`.
+
+    Returns
+    -------
+    RandomForestRegressor
+        The best RandomForestRegressor model found after hyperparameter tuning.
+    """
+    param_distribs = {
+        "n_estimators": randint(1, 200),
+        "max_features": randint(1, 8),
+    }
+
     forest_reg = RandomForestRegressor(random_state=42)
 
     rnd_search = RandomizedSearchCV(

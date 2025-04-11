@@ -1,83 +1,85 @@
 import argparse
-import logging
-import os
 
 import joblib
-import pandas as pd
-
-from mle_training.logger import setup_logger
-from mle_training.model_evaluation import evaluate_model
+import numpy as np
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 
-def score_models(model_folder, data_folder):
-    """Scores trained models on validation dataset."""
-    logging.info("Starting model scoring...")
-    val_path = os.path.join(data_folder, "val.csv")
-    val_label_path = os.path.join(data_folder, "val_label.csv")
+def load_model(model_path):
+    """
+    Loads a trained model from a given file path.
 
-    try:
-        X_val = pd.read_csv(val_path)
-        y_val = pd.read_csv(val_label_path)
-        logging.debug(f"Validation data loaded from {val_path} and {val_label_path}")
-    except FileNotFoundError as e:
-        logging.error(f"Validation data file not found: {e}")
-        return
-    except Exception as e:
-        logging.error(f"Error loading validation data: {e}")
-        return
+    Parameters
+    ----------
+    model_path : str
+        Path to the saved model file.
 
-    for model_name in [
-        "linear_regression",
-        "decision_tree",
-        "random_forest",
-    ]:
-        model_path = os.path.join(model_folder, f"{model_name}.pkl")
-        if not os.path.exists(model_path):
-            logging.warning(f"Model {model_name} not found, skipping.")
-            continue
+    Returns
+    -------
+    object
+        The loaded machine learning model.
+    """
+    return joblib.load(model_path)
 
-        try:
-            model = joblib.load(model_path)
-            logging.debug(f"Model {model_name} loaded from {model_path}")
-        except FileNotFoundError as e:
-            logging.error(f"Model file not found: {e}")
-            continue
-        except Exception as e:
-            logging.error(f"Error loading model {model_name}: {e}")
-            continue
 
-        try:
-            rmse = evaluate_model(model, X_val, y_val)
-            logging.info(f"{model_name} RMSE: {rmse}")
-        except Exception as e:
-            logging.error(f"Error evaluating model {model_name}: {e}")
-            continue
-        logging.debug(f"Evaluation of {model_name} completed.")
+def evaluate_model(model, X_test, y_test):
+    """
+    Evaluates a trained model using various regression metrics.
+
+    Parameters
+    ----------
+    model : object
+        The trained model to be evaluated.
+    X_test : numpy.ndarray or pandas.DataFrame
+        Feature matrix used for testing.
+    y_test : numpy.ndarray or pandas.Series
+        True labels corresponding to `X_test`.
+
+    Returns
+    -------
+    dict
+        Dictionary containing evaluation metrics:
+        - "MSE" : Mean Squared Error
+        - "RMSE" : Root Mean Squared Error
+        - "MAE" : Mean Absolute Error
+        - "R2 Score" : R-squared score
+    """
+    predictions = model.predict(X_test)
+
+    mse = mean_squared_error(y_test, predictions)
+    rmse = np.sqrt(mse)
+    mae = mean_absolute_error(y_test, predictions)
+    r2 = r2_score(y_test, predictions)
+
+    return {"MSE": mse, "RMSE": rmse, "MAE": mae, "R2 Score": r2}
+
+
+def main(model_path, X_test_path, y_test_path):
+    """
+    Main function to load the model and test data, evaluate performance, and results.
+
+    Parameters
+    ----------
+    model_path : str
+        Path to the trained model file.
+    X_test_path : str
+        Path to the test features file.
+    y_test_path : str
+        Path to the test labels file.
+    """
+    model = load_model(model_path)
+    X_test = joblib.load(X_test_path)
+    y_test = joblib.load(y_test_path)
+
+    results = evaluate_model(model, X_test, y_test)
+    print("Evaluation Results:", results)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Score ML models.")
-    parser.add_argument(
-        "model_folder", type=str, help="Folder containing trained models"
-    )
-    parser.add_argument("data_folder", type=str, help="Folder containing val.csv")
-    parser.add_argument(
-        "--log-level",
-        type=str,
-        default="INFO",
-        help="Logging level",
-    )
-    parser.add_argument(
-        "--log-path",
-        type=str,
-        help="File to write logs",
-    )
-    parser.add_argument(
-        "--no-console-log",
-        action="store_true",
-        help="Disable console logging",
-    )
-    args = parser.parse_args()
-    setup_logger(args.log_level, args.log_path, args.no_console_log)
+    parser = argparse.ArgumentParser(description="Evaluate a trained model.")
+    parser.add_argument("model_path", type=str, help="Path to the trained model file")
+    parser.add_argument("X_test_path", type=str, help="Path to the test features file")
+    parser.add_argument("y_test_path", type=str, help="Path to the test labels file")
 
-    score_models(args.model_folder, args.data_folder)
+    args = parser.parse_args()
+    main(args.model_path, args.X_test_path, args.y_test_path)
