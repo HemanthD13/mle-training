@@ -6,6 +6,9 @@ import joblib
 import numpy as np
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
+import os
+
+import joblib
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import RandomizedSearchCV, train_test_split
 
@@ -23,22 +26,16 @@ from mle_training.config import (
 
 
 def load_data(data_path):
-    """
-    Loads dataset from the given file path.
+    """Load preprocessed training data and labels."""
+    train_data_path = os.path.join(data_path, "train.csv")  # Specify the correct file
+    train_labels_path = os.path.join(
+        data_path, "x_label.csv"
+    )  # Adjust label file name if needed
 
-    Parameters
-    ----------
-    data_path : str
-        Path to the dataset file.
+    # Load data and labels separately
+    X = joblib.load(train_data_path)
+    y = joblib.load(train_labels_path)
 
-    Returns
-    -------
-    tuple
-        A tuple containing features (X) and target values (y).
-    """
-    data = joblib.load(data_path)
-    X = data.drop(columns=["target"])
-    y = data["target"]
     return X, y
 
 
