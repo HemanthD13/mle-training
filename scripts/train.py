@@ -1,8 +1,15 @@
 import argparse
+import os
+import sys
 
 import joblib
 import numpy as np
-from config import (
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import RandomizedSearchCV, train_test_split
+
+from mle_training.config import (
     RANDOM_SEED,
     RF_CV_FOLDS,
     RF_MAX_FEATURES_HIGH,
@@ -13,8 +20,6 @@ from config import (
     SCORING_METRIC,
     TEST_SIZE,
 )
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import RandomizedSearchCV, train_test_split
 
 
 def load_data(data_path):
