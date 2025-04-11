@@ -4,6 +4,7 @@ import sys
 
 import joblib
 import numpy as np
+import pandas as pd
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
 import os
