@@ -259,12 +259,12 @@ jobs:
 
 
 
-      - name: Run ML scripts with timestamped logging
+      - name: Run ML scripts
 
         run: |
 
-          python scripts/ingest_data.py data/ --log-level INFO
+          python scripts/ingest_data.py data/
 
-          python scripts/train.py data/ models/ --log-level INFO
+          python scripts/train.py data/ models/
 
-          python scripts/score.py models/ data/ --log-level INFO
+          python scripts/score.py models/ data/
