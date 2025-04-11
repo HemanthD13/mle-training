@@ -26,16 +26,19 @@ from mle_training.config import (
 
 
 def load_data(data_path):
-    train_data_path = os.path.join(data_path, "train.pkl")  # Ensure correct file
-    train_labels_path = os.path.join(data_path, "train_labels.pkl")
+    train_data_path = os.path.join(data_path, "train.csv")  # Use the correct CSV file
+    train_labels_path = os.path.join(
+        data_path, "x_label.csv"
+    )  # Use the correct CSV file
 
     if not os.path.exists(train_data_path) or not os.path.exists(train_labels_path):
         raise FileNotFoundError(
-            f"Missing required files in {data_path}. Ensure train.pkl and train_labels.pkl exist."
+            f"Missing required files in {data_path}. Ensure train.csv and x_label.csv exist."
         )
 
-    X = joblib.load(train_data_path)
-    y = joblib.load(train_labels_path)
+    # Load the data from CSV files
+    X = pd.read_csv(train_data_path)
+    y = pd.read_csv(train_labels_path)
 
     return X, y
 
