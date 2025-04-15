@@ -268,4 +268,4 @@ jobs:
 
           python scripts/train.py data/ models/model.joblib
 
-          python scripts/score.py models/model.joblib data/
+          python scripts/score.py models/model.joblib data/val.csv data/val_label.csv
