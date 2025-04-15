@@ -75,7 +75,7 @@ def train_model(X_train, y_train):
         random_state=RANDOM_SEED,
     )
 
-    search.fit(X_train, y_train)
+    search.fit(X_train, y_train.values.ravel())
     return search.best_estimator_
 
 
