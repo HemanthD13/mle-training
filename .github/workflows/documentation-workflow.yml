@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - 'enh/issue#21/setup-sphinx-docs'
-  pull_request:
-    branches:
-      - 'main'
+  #pull_request:
+    #branches:
+      #- 'main'
 
 jobs:
   build-docs:
