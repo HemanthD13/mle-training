@@ -264,7 +264,8 @@ jobs:
         run: |
 
           python scripts/ingest_data.py data/
+          mkdir -p models
 
-          python scripts/train.py data/ models/
+          python scripts/train.py data/ models/model.joblib
 
-          python scripts/score.py models/ data/
+          python scripts/score.py models/model.joblib data/

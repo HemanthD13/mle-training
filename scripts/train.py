@@ -96,6 +96,8 @@ def main(data_path, model_output_path):
     )
 
     model = train_model(X_train, y_train)
+    if os.path.isdir(model_output_path):
+        raise ValueError("model_output_path must be a file path, not a directory.")
     joblib.dump(model, model_output_path)
     print(f"Model saved at {model_output_path}")
 
