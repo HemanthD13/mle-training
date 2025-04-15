@@ -87,7 +87,7 @@ def preprocess_data(housing):
     )  # Excluding the categorical column
     cat_attribs = ["ocean_proximity"]
 
-    # Create numerical and categorical pipelines
+    # Create numerical and categorical pipeline
     num_pipeline = Pipeline(
         [
             ("imputer", SimpleImputer(strategy="median")),
