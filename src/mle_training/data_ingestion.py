@@ -42,7 +42,6 @@ class FeatureAdder(BaseEstimator, TransformerMixin):
         # Convert to DataFrame to make it easier to reference by column names
         X_df = pd.DataFrame(X, columns=num_attribs)
 
-        # Feature engineering
         rooms_per_household = X_df["total_rooms"] / X_df["households"]
         population_per_household = X_df["population"] / X_df["households"]
 
@@ -53,6 +52,24 @@ class FeatureAdder(BaseEstimator, TransformerMixin):
             ]
         else:
             return np.c_[X, rooms_per_household, population_per_household]
+
+    def get_feature_names_out(self, input_features=None):
+        if input_features is None:
+            input_features = num_attribs
+        if self.add_bedrooms_per_room:
+            return np.append(
+                input_features,
+                [
+                    "rooms_per_household",
+                    "population_per_household",
+                    "bedrooms_per_room",
+                ],
+            )
+        else:
+            return np.append(
+                input_features,
+                ["rooms_per_household", "population_per_household"],
+            )
 
 
 def preprocess_data(housing):
@@ -113,29 +130,7 @@ def preprocess_data(housing):
     # Preprocess the training data
     housing_prepared_array = full_pipeline.fit_transform(housing)
 
-    # # Convert the result back to DataFrame with appropriate column names
-    # # The columns for numerical features are generated dynamically
-    # room_feature_names = [
-    #     "rooms_per_household",
-    #     "population_per_household",
-    #     "bedrooms_per_room" if "bedrooms_per_room" in num_attribs else "",
-    # ]
-    # room_feature_names = [
-    #     name for name in room_feature_names if name
-    # ]  # Remove empty names
-    # cat_columns = (
-    #     full_pipeline.transformers_[1][1]
-    #     .named_steps["onehot"]
-    #     .get_feature_names_out(input_features=cat_attribs)
-    # )
-
-    # # Create DataFrame with correct column names
-    # housing_prepared = pd.DataFrame(
-    #     housing_prepared_array,
-    #     columns=num_attribs + room_feature_names + list(cat_columns),
-    # )
-
-    # # Prepare the test data
+    # Prepare the test data
     X_test = test_set.drop("median_house_value", axis=1)
     y_test = test_set["median_house_value"].copy()
     X_test_prepared = full_pipeline.transform(X_test)
