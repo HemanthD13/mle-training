@@ -2,6 +2,7 @@ import argparse
 
 import joblib
 import numpy as np
+import pandas as pd
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 
@@ -68,8 +69,8 @@ def main(model_path, X_test_path, y_test_path):
         Path to the test labels file.
     """
     model = load_model(model_path)
-    X_test = joblib.load(X_test_path)
-    y_test = joblib.load(y_test_path)
+    X_test = pd.read_csv(X_test_path)
+    y_test = pd.read_csv(y_test_path).values.ravel()
 
     results = evaluate_model(model, X_test, y_test)
     print("Evaluation Results:", results)

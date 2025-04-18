@@ -6,7 +6,7 @@ def setup_logger(log_level="INFO", log_path=None, no_console_log=False):
     """
     Configures the logger with user-specified options.
 
-    Parameters
+    Parameter
     ----------
     log_level : str, optional
         The logging level to use (default is "INFO"). Valid values are:

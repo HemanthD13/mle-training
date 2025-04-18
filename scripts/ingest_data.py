@@ -2,6 +2,8 @@ import argparse
 import logging
 import os
 
+import pandas as pd
+
 from mle_training.data_ingestion import (
     fetch_housing_data,
     load_housing_data,
@@ -65,6 +67,7 @@ def ingest_data(output_folder):
 
     try:
         logging.info(f"Saving training data to: {train_path}")
+        x_train = pd.DataFrame(x_train)
         x_train.to_csv(train_path, index=False)
         logging.debug(f"Training data saved successfully to: {train_path}")
     except Exception as e:
@@ -73,6 +76,7 @@ def ingest_data(output_folder):
 
     try:
         logging.info(f"Saving validation data to: {val_path}")
+        x_val = pd.DataFrame(x_val)
         x_val.to_csv(val_path, index=False)
         logging.debug(f"Validation data saved successfully to: {val_path}")
     except Exception as e:
@@ -81,6 +85,7 @@ def ingest_data(output_folder):
 
     try:
         logging.info(f"Saving training labels to: {train_label_path}")
+        x_label = pd.DataFrame(x_label)
         x_label.to_csv(train_label_path, index=False)
         logging.debug(f"Training labels saved successfully to: {train_label_path}")
     except Exception as e:
@@ -89,6 +94,7 @@ def ingest_data(output_folder):
 
     try:
         logging.info(f"Saving validation labels to: {val_label_path}")
+        val_label = pd.DataFrame(val_label)
         val_label.to_csv(val_label_path, index=False)
         logging.debug(f"Validation labels saved successfully to: {val_label_path}")
     except Exception as e:

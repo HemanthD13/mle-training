@@ -1,8 +1,19 @@
 import argparse
+import os
+import sys
 
 import joblib
 import numpy as np
-from config import (
+import pandas as pd
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
+import os
+
+import joblib
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import RandomizedSearchCV, train_test_split
+
+from mle_training.config import (
     RANDOM_SEED,
     RF_CV_FOLDS,
     RF_MAX_FEATURES_HIGH,
@@ -13,27 +24,23 @@ from config import (
     SCORING_METRIC,
     TEST_SIZE,
 )
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import RandomizedSearchCV, train_test_split
 
 
 def load_data(data_path):
-    """
-    Loads dataset from the given file path.
+    train_data_path = os.path.join(data_path, "train.csv")  # Use the correct CSV file
+    train_labels_path = os.path.join(
+        data_path, "x_label.csv"
+    )  # Use the correct CSV file
 
-    Parameters
-    ----------
-    data_path : str
-        Path to the dataset file.
+    if not os.path.exists(train_data_path) or not os.path.exists(train_labels_path):
+        raise FileNotFoundError(
+            f"Missing required files in {data_path}. Ensure train.csv and x_label.csv exist."
+        )
 
-    Returns
-    -------
-    tuple
-        A tuple containing features (X) and target values (y).
-    """
-    data = joblib.load(data_path)
-    X = data.drop(columns=["target"])
-    y = data["target"]
+    # Load the data from CSV files
+    X = pd.read_csv(train_data_path)
+    y = pd.read_csv(train_labels_path)
+
     return X, y
 
 
@@ -68,7 +75,7 @@ def train_model(X_train, y_train):
         random_state=RANDOM_SEED,
     )
 
-    search.fit(X_train, y_train)
+    search.fit(X_train, y_train.values.ravel())
     return search.best_estimator_
 
 
@@ -89,6 +96,8 @@ def main(data_path, model_output_path):
     )
 
     model = train_model(X_train, y_train)
+    if os.path.isdir(model_output_path):
+        raise ValueError("model_output_path must be a file path, not a directory.")
     joblib.dump(model, model_output_path)
     print(f"Model saved at {model_output_path}")
 

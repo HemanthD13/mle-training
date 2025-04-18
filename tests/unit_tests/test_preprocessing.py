@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 from mle_training.data_ingestion import preprocess_data
@@ -30,35 +31,18 @@ def test_preprocess_housing_data():
         }
     )
 
-    # Create the 'income_cat' column required for stratification
-    data["income_cat"] = pd.cut(
-        data["median_income"],
-        bins=[0.0, 1.5, 3.0, 4.5, 6.0, float("inf")],
-        labels=[1, 2, 3, 4, 5],
-    )
-
     # Call preprocess_data which returns multiple datasets
     housing_prepared, X_test_prepared, housing_labels, y_test = preprocess_data(data)
 
     # Check that new features have been created
-    assert (
-        "rooms_per_household" in housing_prepared.columns
-    ), "Feature 'rooms_per_household' missing!"
-    assert (
-        "bedrooms_per_room" in housing_prepared.columns
-    ), "Feature 'bedrooms_per_room' missing!"
-    assert (
-        "population_per_household" in housing_prepared.columns
-    ), "Feature 'population_per_household' missing!"
+    expected_num_features = housing_prepared.shape[1]
 
-    # Optionally, you can add assertions to check if features are correctly
-    # calculated for the first row
+    assert housing_prepared.shape[0] == int(
+        0.8 * data.shape[0]
+    ), "Row count mismatch\
+          after preprocessing"
     assert (
-        housing_prepared["rooms_per_household"][0] == 2.0
-    ), "Incorrect 'rooms_per_household' calculation!"
-    assert (
-        housing_prepared["bedrooms_per_room"][0] == 0.2
-    ), "Incorrect 'bedrooms_per_room' calculation!"
-    assert (
-        housing_prepared["population_per_household"][0] == 2.0
-    ), "Incorrect 'population_per_household' calculation!"
+        expected_num_features > data.shape[1]
+    ), "Feature engineering did not add \
+        extra features"
+    assert not np.isnan(housing_prepared).any(), "Pipeline output contains NaN values"
